@@ -1,44 +1,43 @@
-class Path
+ArrayList<Walker> walkers;
+//Walker walker;
+Path path;
+
+int NoP = 30; // number of paths
+float t; // for Perlin's noise
+
+void setup()
 {
-  ArrayList<PVector> points;
+  size(1000, 360);
 
-  PVector pos;
-  float r;
-  float size;
+  float w = width/NoP; // lenght of part of path
+  float h; // y position of path
+  t = 0.1;
 
-  Path()
+  path = new Path();
+  walkers = new ArrayList<Walker>();
+  
+  for (int i = 0; i < 20; i++)
   {
-    points = new ArrayList<PVector>();
-    pos = new PVector(0, 0);
-    r = 30;
+    walkers.add(new Walker());
   }
 
-  void addPoint(float x, float y)
+  for (int i = 0; i <= NoP; i++)
   {
-    points.add(new PVector(x, y));
-    size = points.size();
+    h = noise(t);
+    h = map(h, 0, 1, 50, height-50);
+    path.addPoint(i*w, h);
+    t += 0.1;
   }
+}
 
-  void display()
+void draw()
+{
+  background(255);
+
+  path.display();
+
+  for (Walker w : walkers)
   {
-    stroke(0, 100);
-    strokeWeight(r);
-    noFill();
-    beginShape();
-    for (PVector p : points)
-    {
-      vertex(p.x, p.y);
-    }
-    endShape();
-
-    stroke(0);
-    strokeWeight(1);
-    beginShape();
-    for (int i = 0; i < size; i++)
-    {
-      pos = points.get(i);
-      vertex(pos.x, pos.y);
-    }
-    endShape();
+    w.display(path);
   }
 }
