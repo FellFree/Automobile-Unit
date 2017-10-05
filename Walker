@@ -6,7 +6,7 @@ class Walker
   PVector tempVel; // temporary velocity for caclulations. DO NOT USE IT WITHOUT CLEARING THIS BEFORE
   PVector acceleration; // acceleration of Walker
   PVector normalPoint; // normal point of two vectors
-  PVector unitPathVector; // for gettin the angle of path Vector;
+  PVector unitPathVector; // for getting the angle of path Vector;
   PVector tempNormalPoint; // temporary normal point of two vectors;
   PVector target; // for chasing, some time in future from normal point
 
@@ -20,14 +20,14 @@ class Walker
   // Constructor
   Walker()
   {
-    maxForce = 0.005;
-    maxSpeed = 4;
+    maxForce = random(0.005);
+    maxSpeed = random(1, 4);
     size = 8;
     colour = 172;
     steps = 25;
 
     position = new PVector(random(width), random(height));
-    velocity = new PVector(random(-maxSpeed, maxSpeed),random(-maxSpeed, maxSpeed));
+    velocity = new PVector(random(-maxSpeed, maxSpeed), random(-maxSpeed, maxSpeed));
     //velocity = new PVector(2, 0);
     //position = new PVector(320, 70);
 
@@ -64,42 +64,41 @@ class Walker
     target = normalPoint.copy();
     tempVel = unitPathVector.copy();
     tempVel.normalize();
-    tempVel.mult(steps/2);
+    tempVel.mult(steps);
     target.add(tempVel);
     drawCircle(target, 3, color(0, 255, 0));
   }
 
   void chooseClosestPath(ArrayList<PVector> points, PVector pos)
   {
-    float minDistance = 1000000;
-    float dis = 1000000;
-    PVector tempVec;
-    PVector start;
-    PVector end;
-
-    for (int i = 0; i < points.size() -1; i++)
+    float Distance = 1000000;
+    float dist = 1000000;
+    PVector vector = null;
+    PVector a = null;
+    PVector b = null;
+    
+    for(int i = 0; i < points.size() -1; i++)
     {
-      start = points.get(i);
-      end = points.get(i+1);
-      tempVec = getNormalPosition(start, pos, end);
-      dis = tempVec.mag();
-
-      //println("tempVec: " + tempVec + " distance: " + dis);
-
-
-      if (dis < minDistance)
+      a = points.get(i);
+      b = points.get(i+1);
+      vector = getNormalPosition(pos, a, b);
+      
+      if(vector.x < a.x) vector = a.copy();
+      if(vector.x > b.x) vector = b.copy();
+      
+      dist = PVector.sub(vector, pos).mag();
+      if(Distance > dist)
       {
-        if (tempVec.x > start.x && tempVec.x < end.x)
-        {
-          normalPoint = tempVec.copy();
-          unitPathVector = PVector.sub(end, start);
-        }
+        unitPathVector = PVector.sub(b, a).normalize();
+        normalPoint = vector.copy();
+        Distance = dist;
       }
+      drawCircle(vector, 4, 1);
     }
   }
 
   // origin - origin of both vector, a - vector of Walker, b - second vector of path
-  PVector getNormalPosition(PVector origin, PVector a, PVector b)
+  PVector getNormalPosition(PVector a, PVector origin, PVector b)
   {
     PVector oa = PVector.sub(a, origin);
     PVector ob = PVector.sub(b, origin);
@@ -162,11 +161,17 @@ class Walker
   // display Walker
   void display(Path p)
   {
+    update();
+    edges();
     setFuturePosition();
+    //normalPoint = getNormalPosition(futurePosition, p.points.get(0), p.points.get(1));
     chooseClosestPath(p.points, futurePosition);
+    
     setTarget();
     if (checkAction(p.r))chaseTarget();
+    
     drawCircle(position, size, colour);
     drawCircle(normalPoint, 3, color(0, 0, 255));
+    drawCircle(target, 5, color(255, 0, 255));
   }
 }
