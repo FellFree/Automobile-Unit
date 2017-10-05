@@ -1,0 +1,43 @@
+ArrayList<Walker> walkers;
+//Walker walker;
+Path path;
+
+int steps = 10; // how many points will path have
+
+void setup()
+{
+  size(1000, 1000);
+
+  walkers = new ArrayList<Walker>();
+  for (int i = 0; i < 20; i++)
+  {
+    walkers.add(new Walker());
+  }
+  //walker = new Walker();
+  path = new Path();
+  
+  float w = width/steps;
+  
+  for(int i = 0; i < steps
+  path.addPoint(200, 150);
+  path.addPoint(320, 70);
+  path.addPoint(640, 150);
+}
+
+void draw()
+{
+  background(255);
+
+  path.display();
+
+  for (Walker w : walkers)
+  {
+    w.update();
+    w.edges();
+    w.display(path);
+  }
+
+  //walker.update();
+  //walker.edges();
+  //walker.display(path);
+}
