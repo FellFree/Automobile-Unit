@@ -16,7 +16,7 @@ void setup()
   path = new Path();
   walkers = new ArrayList<Walker>();
   
-  for (int i = 0; i < 20; i++)
+  for (int i = 0; i < 80; i++)
   {
     walkers.add(new Walker());
   }
@@ -38,6 +38,7 @@ void draw()
 
   for (Walker w : walkers)
   {
+    w.separation(walkers);
     w.display(path);
   }
 }
