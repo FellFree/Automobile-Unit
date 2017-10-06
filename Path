@@ -10,7 +10,7 @@ class Path
   {
     points = new ArrayList<PVector>();
     pos = new PVector(0, 0);
-    r = 30;
+    r = 45;
   }
 
   void addPoint(float x, float y)
