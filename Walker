@@ -14,17 +14,21 @@ class Walker
   float maxSpeed; // maximum speed of Walker
   float maxForce; // maximym force that can act upon Walker
   float steps; // how for it can see in the future
+  float minDistanceFromOthers; // minimum distance from others
 
   color colour;
 
   // Constructor
   Walker()
   {
-    maxForce = random(0.005);
-    maxSpeed = random(1, 4);
-    size = 8;
+    maxForce = 0.005;
+    maxSpeed = random(2, 4);
+
+    size = random(4, 10);
     colour = 172;
     steps = 25;
+
+    minDistanceFromOthers = size*1.5;
 
     position = new PVector(random(width), random(height));
     velocity = new PVector(random(-maxSpeed, maxSpeed), random(-maxSpeed, maxSpeed));
@@ -37,6 +41,34 @@ class Walker
     tempNormalPoint = new PVector(0, 0);
     target = new PVector(0, 0);
     unitPathVector = new PVector(0, 0);
+  }
+
+  // for separating individuals
+  void separation(ArrayList<Walker> walkers)
+  {
+    float dist;
+    PVector sum = new PVector();
+    int count = 0;
+
+    for (Walker w : walkers)
+    {
+      dist = PVector.dist(position, w.position);
+
+      if ((dist > 0) && (dist < minDistanceFromOthers))
+      {
+        sum.add(PVector.sub(position, w.position).normalize().div(dist));
+        count++;
+      }
+
+      if (count > 0)
+      {
+        sum.div(count);
+        sum.normalize();
+        sum.mult(maxSpeed);
+        PVector steer = PVector.sub(sum, velocity);
+        applyForce(steer);
+      }
+    }
   }
 
   boolean checkAction(float r)
@@ -66,7 +98,6 @@ class Walker
     tempVel.normalize();
     tempVel.mult(steps);
     target.add(tempVel);
-    drawCircle(target, 3, color(0, 255, 0));
   }
 
   void chooseClosestPath(ArrayList<PVector> points, PVector pos)
@@ -76,24 +107,23 @@ class Walker
     PVector vector = null;
     PVector a = null;
     PVector b = null;
-    
-    for(int i = 0; i < points.size() -1; i++)
+
+    for (int i = 0; i < points.size() -1; i++)
     {
       a = points.get(i);
       b = points.get(i+1);
       vector = getNormalPosition(pos, a, b);
-      
-      if(vector.x < a.x) vector = a.copy();
-      if(vector.x > b.x) vector = b.copy();
-      
+
+      if (vector.x < a.x) vector = a.copy();
+      if (vector.x > b.x) vector = b.copy();
+
       dist = PVector.sub(vector, pos).mag();
-      if(Distance > dist)
+      if (Distance > dist)
       {
         unitPathVector = PVector.sub(b, a).normalize();
         normalPoint = vector.copy();
         Distance = dist;
       }
-      drawCircle(vector, 4, 1);
     }
   }
 
@@ -120,7 +150,6 @@ class Walker
     tempVel.normalize();
     tempVel.mult(steps);
     futurePosition.add(tempVel);
-    drawCircle(futurePosition, 4, color(0, 0, 255));
   }
 
   // act on the Walker
@@ -166,12 +195,13 @@ class Walker
     setFuturePosition();
     //normalPoint = getNormalPosition(futurePosition, p.points.get(0), p.points.get(1));
     chooseClosestPath(p.points, futurePosition);
-    
+
     setTarget();
     if (checkAction(p.r))chaseTarget();
-    
+
     drawCircle(position, size, colour);
-    drawCircle(normalPoint, 3, color(0, 0, 255));
-    drawCircle(target, 5, color(255, 0, 255));
+    //drawCircle(futurePosition, 4, color(0, 0, 255));
+    //drawCircle(normalPoint, 3, color(0, 0, 255));
+    //drawCircle(target, 5, color(255, 0, 255));
   }
 }
